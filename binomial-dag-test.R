@@ -4,9 +4,9 @@ library(dagitty)
 library(ggdag)
 
 # Draw Causal DAG
-dag <- dagitty("dag{V -> S; V -> D -> S; D -> AC -> S; N -> S; U -> S}")
+dag <- dagitty("dag{V -> S; V -> D -> S; D -> AC -> S; N -> S; U -> S; V -> AC}")
 coordinates(dag) <- list(
-  x = c(S = 2, N = 2, U = 2, D = 1, V = 1, AC = 1),
+  x = c(S = 2, N = 2, U = 2, D = 1.375, V = 1, AC = 1),
   y = c(S = 0, N = 2, U = -2, D = 0, V = 2, AC = -2)
 )
 ggdag(dag)
@@ -14,7 +14,6 @@ ggdag(dag)
 impliedConditionalIndependencies(dag)
 # AC _||_ N
 # AC _||_ U
-# AC _||_ V | D
 # D _||_ N
 # D _||_ U
 # N _||_ U
@@ -97,7 +96,7 @@ m1.prior <- extract.prior(m1)
 dens(m1.prior$a)
 dens(m1.prior$bV)
 
-m1.prior.p <- inv_logit(prior$a + prior$bV*V)
+m1.prior.p <- inv_logit(m1.prior$a + m1.prior$bV*V)
 dens(m1.prior.p)
 m1.prior.S <- rbinom(n, N, m1.prior.p)
 hist(S)
