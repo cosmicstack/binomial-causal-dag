@@ -25,7 +25,7 @@ set.seed(1994)
 n <- 1000
 V <- rbeta(n, 3.5, 5) * 0.5
 D <- 10*V + rbinom(n, 15, 0.3)
-AC <- 0.1*D + rbeta(n, 0.5, 0.5)
+AC <- 0.1*D + 0.5*V + rbeta(n, 0.5, 0.5)
 p <- inv_logit(0.3 + 1.1*V - 0.17*D + 1.4*AC + rnorm(n))
 N <- rpois(n, 500)
 S <- rbinom(n, N, p)
@@ -158,3 +158,42 @@ ggplot() +
   geom_vline(xintercept = 0, linetype = 2, color = "salmon") +
   theme_minimal()
 
+# m2 base, but direct effect of V
+dat1.1 <- list(
+  N = N,
+  S = S,
+  V = V,
+  AC = AC,
+  D = D
+)
+
+m2.1 <- ulam(
+  alist(
+    S ~ dbetabinom(N, pbar, theta),
+    logit(pbar) <- a + bV*V + bAC*AC + bD*D,
+    a ~ dnorm(0, 1.5),
+    c(bV, bAC, bD) ~ dnorm(0, 0.5),
+    transpars> theta <<- phi + 2.0,
+    phi ~ dexp(1)
+  ),
+  data = dat1.1,
+  chains = 4,
+  cores = 4
+)
+trankplot(m2.1)
+precis(m2.1)
+
+# for a std 5 node DAG, with 1 agent node
+# AC = 0.1; D = 5
+dat_cf.1 <- data.frame(V=c(0.2, 0.5, 0.8), AC = 0.1, D = 5)
+m2.1.p <- link(m2.1, data = dat_cf.1)
+m2.1.sim <- sim(m2.1, data = dat_cf.1)
+
+m2.1.diff1 <- m2.1.p[, 2] - m2.1.p[, 1]
+dens(m2.1.diff1)
+
+m2.1.diff2 <- m2.1.p[, 3] - m2.1.p[, 2]
+dens(m2.1.diff2)
+
+m2.1.diff3 <- m2.1.p[, 3] - m2.1.p[, 1]
+dens(m2.1.diff3)
