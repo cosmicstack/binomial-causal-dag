@@ -4,21 +4,14 @@ library(dagitty)
 library(ggdag)
 
 # Draw Causal DAG
-dag <- dagitty("dag{V -> S; V -> D -> S; D -> AC -> S; N -> S; U -> S; V -> AC}")
+dag <- dagitty("dag{N -> V; N -> AN -> AC; E -> P -> D; P -> AC; N -> E -> V; V -> S; V -> D -> S; D -> AC -> S; T -> S; U -> S; V -> AC}")
 coordinates(dag) <- list(
-  x = c(S = 2, N = 2, U = 2, D = 1.375, V = 1, AC = 1),
-  y = c(S = 0, N = 2, U = -2, D = 0, V = 2, AC = -2)
+  x = c(S = 2, T = 2, U = 2, D = 1.375, V = 1, AC = 1, E = 0, P = 0.25, N = 0, AN = 0.5),
+  y = c(S = 0, T = 2, U = -2, D = 0, V = 2, AC = -2, E = 2, P = 0, N = -2, AN = -2)
 )
 ggdag(dag)
 
 impliedConditionalIndependencies(dag)
-# AC _||_ N
-# AC _||_ U
-# D _||_ N
-# D _||_ U
-# N _||_ U
-# N _||_ V
-# U _||_ V
 
 # Data simulation
 set.seed(1994)
